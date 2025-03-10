@@ -85,6 +85,7 @@ static bool process_lsft_for_caps(uint16_t keycode, keyrecord_t * record) {
                   //clear_mods();  // If needed, clear the mods.
                   // Do something interesting...
                   register_code(KC_CAPS);
+                  unregister_code(KC_CAPS);
                 }
                 tapped = true;
                 tap_timer = record->event.time + TAPPING_TERM;
