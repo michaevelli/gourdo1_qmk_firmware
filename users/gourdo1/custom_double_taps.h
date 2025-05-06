@@ -71,25 +71,29 @@ static bool process_esc_to_base(uint16_t keycode, keyrecord_t * record) {
     }
     return true;
 }
+
 static bool process_lsft_for_caps(uint16_t keycode, keyrecord_t * record) {
-    static bool toggled = false;
+    // static bool toggled = false;
     static bool tapped = false;
     static uint16_t tap_timer = 0;
+    led_t led_state = host_keyboard_led_state();
     if (keycode == KC_LSFT) {
         if (user_config.double_tap_shift_for_capslock) {
             if (!keymap_config.no_gui) {
                 if (record -> event.pressed) { // SHIFT pressed
                     // Check whether the key was recently tapped
-                    if (!toggled && tapped && !timer_expired(record -> event.time, tap_timer)) {
+                    if (!led_state.caps_lock && tapped && !timer_expired(record -> event.time, tap_timer)) {
                         // This is a double tap (or possibly a triple tap or more)
                         // CAPS LOCK (on)
                         register_code(KC_CAPS);
-                        toggled = true;
-                    } else if (toggled) {
+                        // toggled = true;
+                    } else if (led_state.caps_lock) {
                         // Single tap OK for toggling CAPS LOCK off
-                        toggled = false;
+                        // toggled = false;
                         tapped = false;
                         register_code(KC_CAPS);
+                    } else {
+                        register_code(KC_LSFT);
                     }
                     // Set that the first tap occurred in a potential double tap
                     tapped = true;
@@ -97,10 +101,11 @@ static bool process_lsft_for_caps(uint16_t keycode, keyrecord_t * record) {
                 } else {
                     // Let go of CAPS LOCK
                     unregister_code(KC_CAPS);
+                    unregister_code(KC_LSFT);
                 }
             }
         } else {
-             // Act as KC_CAPS
+             // Act as KC_LSFT
             if (record -> event.pressed) {
                 register_code(KC_LSFT);
             } else {
